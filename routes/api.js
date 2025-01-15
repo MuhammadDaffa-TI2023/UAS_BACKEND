@@ -31,7 +31,7 @@ router.delete("/alumni/:id", AlumniController.deleteAlumni);
  */
 
 // Mencari alumni berdasarkan nama (menggunakan query parameter ?name=)
-router.get("/alumni/search", AlumniController.searchAlumniByName); 
+router.get("/alumni/search/:name", AlumniController.searchAlumniByName); 
 
 // Mendapatkan alumni yang baru lulus (fresh graduate)
 router.get("/alumni/fresh-graduate", AlumniController.getFreshGraduate); 
