@@ -6,26 +6,26 @@ const {
   updateAlumni,
   deleteAlumni,
   searchAlumniByName,
+  searchResource,
+  getFreshGraduateResource,
+  getEmployedResource,
+  getUnemployedResource,
 } = require("../controllers/AlumniController");
 
 const router = express.Router();
 
-// Define routes
-// Mendapatkan semua data alumni
-router.get("/alumni", getAllAlumni); 
-
- // Mendapatkan data alumni berdasarkan ID
+// Routes alumni
+router.get("/alumni", getAllAlumni);
 router.get("/alumni/:id", getAlumniById);
+router.post("/alumni", createAlumni);
+router.put("/alumni/:id", updateAlumni);
+router.delete("/alumni/:id", deleteAlumni);
+router.get("/alumni/search/:name", searchAlumniByName);
 
-// Menambahkan data alumni
-router.post("/alumni", createAlumni); 
+// Additional routes
+router.get("/resource/search/:name", searchResource);
+router.get("/resource/fresh-graduate", getFreshGraduateResource);
+router.get("/resource/employed", getEmployedResource);
+router.get("/resource/unemployed", getUnemployedResource);
 
-// Mengupdate data alumni berdasarkan ID
-router.put("/alumni/:id", updateAlumni); 
-
-// Menghapus data alumni berdasarkan ID
-router.delete("/alumni/:id", deleteAlumni); 
-
-// Mencari alumni berdasarkan nama
-router.get("/alumni/search/:name", searchAlumniByName); 
 module.exports = router;

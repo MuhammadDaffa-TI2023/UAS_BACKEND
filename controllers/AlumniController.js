@@ -1,4 +1,3 @@
-// Import model Alumni dan operator Op dari Sequelize
 const Alumni = require("../models/Alumni");
 const { Op } = require("sequelize");
 
@@ -11,7 +10,6 @@ const getAllAlumni = async (req, res) => {
       data: alumni,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       message: "Internal server error",
       error: error.message,
@@ -24,16 +22,10 @@ const getAlumniById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!id) {
-      return res.status(400).json({ message: "ID is required" });
-    }
-
     const alumni = await Alumni.findByPk(id);
 
     if (!alumni) {
-      return res.status(404).json({
-        message: "Alumni not found",
-      });
+      return res.status(404).json({ message: "Alumni not found" });
     }
 
     res.status(200).json({
@@ -41,7 +33,6 @@ const getAlumniById = async (req, res) => {
       data: alumni,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       message: "Internal server error",
       error: error.message,
@@ -66,7 +57,6 @@ const createAlumni = async (req, res) => {
       data: newAlumni,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       message: "Internal server error",
       error: error.message,
@@ -78,27 +68,15 @@ const createAlumni = async (req, res) => {
 const updateAlumni = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, graduation_year, status } = req.body;
 
-    if (!id) {
-      return res.status(400).json({ message: "ID is required" });
-    }
-
-    const [updated] = await Alumni.update(req.body, {
-      where: { id },
-    });
+    const [updated] = await Alumni.update(req.body, { where: { id } });
 
     if (!updated) {
-      return res.status(404).json({
-        message: "Alumni not found",
-      });
+      return res.status(404).json({ message: "Alumni not found" });
     }
 
-    res.status(200).json({
-      message: "Alumni successfully updated",
-    });
+    res.status(200).json({ message: "Alumni successfully updated" });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       message: "Internal server error",
       error: error.message,
@@ -111,25 +89,14 @@ const deleteAlumni = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!id) {
-      return res.status(400).json({ message: "ID is required" });
-    }
-
-    const deleted = await Alumni.destroy({
-      where: { id },
-    });
+    const deleted = await Alumni.destroy({ where: { id } });
 
     if (!deleted) {
-      return res.status(404).json({
-        message: "Alumni not found",
-      });
+      return res.status(404).json({ message: "Alumni not found" });
     }
 
-    res.status(200).json({
-      message: "Alumni successfully deleted",
-    });
+    res.status(200).json({ message: "Alumni successfully deleted" });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       message: "Internal server error",
       error: error.message,
@@ -142,10 +109,6 @@ const searchAlumniByName = async (req, res) => {
   try {
     const { name } = req.params;
 
-    if (!name) {
-      return res.status(400).json({ message: "Name is required" });
-    }
-
     const alumni = await Alumni.findAll({
       where: {
         name: {
@@ -155,10 +118,7 @@ const searchAlumniByName = async (req, res) => {
     });
 
     if (alumni.length === 0) {
-      return res.status(404).json({
-        message: "Alumni not found",
-        data: [],
-      });
+      return res.status(404).json({ message: "Alumni not found", data: [] });
     }
 
     res.status(200).json({
@@ -166,7 +126,6 @@ const searchAlumniByName = async (req, res) => {
       data: alumni,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       message: "Internal server error",
       error: error.message,
@@ -174,7 +133,120 @@ const searchAlumniByName = async (req, res) => {
   }
 };
 
-// Ekspor semua fungsi
+// Mencari resource berdasarkan nama
+const searchResource = async (req, res) => {
+  try {
+    const { name } = req.params;
+
+    if (!name) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    const resources = await Alumni.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${name}%`,
+        },
+      },
+    });
+
+    if (resources.length === 0) {
+      return res.status(404).json({
+        message: "Resource not found",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      message: "Successfully retrieved resource by name",
+      data: resources,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+// Mendapatkan resource fresh graduate
+const getFreshGraduateResource = async (req, res) => {
+  try {
+    const freshGraduates = await Alumni.findAll({
+      where: { status: "fresh graduate" },
+    });
+
+    if (freshGraduates.length === 0) {
+      return res.status(404).json({
+        message: "No fresh graduate resources found",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      message: "Successfully retrieved fresh graduate resources",
+      data: freshGraduates,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+// Mendapatkan resource yang sudah bekerja
+const getEmployedResource = async (req, res) => {
+  try {
+    const employedResources = await Alumni.findAll({
+      where: { status: "employed" },
+    });
+
+    if (employedResources.length === 0) {
+      return res.status(404).json({
+        message: "No employed resources found",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      message: "Successfully retrieved employed resources",
+      data: employedResources,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+// Mendapatkan resource yang belum bekerja
+const getUnemployedResource = async (req, res) => {
+  try {
+    const unemployedResources = await Alumni.findAll({
+      where: { status: "unemployed" },
+    });
+
+    if (unemployedResources.length === 0) {
+      return res.status(404).json({
+        message: "No unemployed resources found",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      message: "Successfully retrieved unemployed resources",
+      data: unemployedResources,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllAlumni,
   getAlumniById,
@@ -182,4 +254,8 @@ module.exports = {
   updateAlumni,
   deleteAlumni,
   searchAlumniByName,
+  searchResource,
+  getFreshGraduateResource,
+  getEmployedResource,
+  getUnemployedResource,
 };
