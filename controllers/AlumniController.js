@@ -1,173 +1,185 @@
-// Import model Alumni
+// Import model Alumni dan operator Op dari Sequelize
 const Alumni = require("../models/Alumni");
-const { Sequelize } = require("sequelize");
+const { Op } = require("sequelize");
 
-// Membuat class AlumniController
-class AlumniController {
-  // Mendapatkan semua data alumni
-  async getAllAlumni(req, res) {
-    try {
-      const alumni = await Alumni.findAll();
-      if (alumni.length === 0) {
-        return res.status(200).json({ message: "Data is empty", data: [] });
-      }
-      res.status(200).json({ message: "Get All Resource", data: alumni });
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching data", error });
-    }
+// Mendapatkan semua data alumni
+const getAllAlumni = async (req, res) => {
+  try {
+    const alumni = await Alumni.findAll();
+    res.status(200).json({
+      message: "Successfully retrieved all alumni",
+      data: alumni,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
   }
+};
 
-  // Mendapatkan alumni berdasarkan ID
-  async getAlumniById(req, res) {
-    try {
-      const { id } = req.params;
-      const alumni = await Alumni.findByPk(id);
-      if (!alumni) {
-        return res.status(404).json({ message: "Resource not found" });
-      }
-      res.status(200).json({ message: "Get Detail Resource", data: alumni });
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching data", error });
+// Mendapatkan data alumni berdasarkan ID
+const getAlumniById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: "ID is required" });
     }
-  }
 
-  // Menambahkan alumni baru
-  async createAlumni(req, res) {
-    try {
-      const data = req.body;
-      const newAlumni = await Alumni.create(data);
-      res.status(201).json({
-        message: "Resource is added successfully",
-        data: newAlumni,
+    const alumni = await Alumni.findByPk(id);
+
+    if (!alumni) {
+      return res.status(404).json({
+        message: "Alumni not found",
       });
-    } catch (error) {
-      res.status(422).json({ message: "Validation error", error });
     }
+
+    res.status(200).json({
+      message: "Successfully retrieved alumni by ID",
+      data: alumni,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
   }
+};
 
-  // Memperbarui alumni berdasarkan ID
-  async updateAlumni(req, res) {
-    try {
-      const { id } = req.params;
-      const data = req.body;
-      const alumni = await Alumni.findByPk(id);
+// Menambahkan data alumni baru
+const createAlumni = async (req, res) => {
+  try {
+    const { name, graduation_year, status } = req.body;
 
-      if (!alumni) {
-        return res.status(404).json({ message: "Resource not found" });
-      }
-
-      await alumni.update(data);
-      res.status(200).json({
-        message: "Resource is updated successfully",
-        data: alumni,
+    if (!name || !graduation_year || !status) {
+      return res.status(400).json({
+        message: "Name, graduation year, and status are required",
       });
-    } catch (error) {
-      res.status(500).json({ message: "Error updating data", error });
     }
+
+    const newAlumni = await Alumni.create(req.body);
+    res.status(201).json({
+      message: "Alumni successfully created",
+      data: newAlumni,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
   }
+};
 
-  // Menghapus alumni berdasarkan ID
-  async deleteAlumni(req, res) {
-    try {
-      const { id } = req.params;
-      const alumni = await Alumni.findByPk(id);
+// Mengupdate data alumni berdasarkan ID
+const updateAlumni = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, graduation_year, status } = req.body;
 
-      if (!alumni) {
-        return res.status(404).json({ message: "Resource not found" });
-      }
-
-      await alumni.destroy();
-      res.status(200).json({ message: "Resource is deleted successfully" });
-    } catch (error) {
-      res.status(500).json({ message: "Error deleting data", error });
+    if (!id) {
+      return res.status(400).json({ message: "ID is required" });
     }
-  }
 
-  // Mencari alumni berdasarkan nama
-  async searchAlumniByName(req, res) {
-    try {
-      const { name } = req.query;
-      const alumni = await Alumni.findAll({
-        where: {
-          name: {
-            [Sequelize.Op.like]: `%${name}%`,
-          },
+    const [updated] = await Alumni.update(req.body, {
+      where: { id },
+    });
+
+    if (!updated) {
+      return res.status(404).json({
+        message: "Alumni not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Alumni successfully updated",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+// Menghapus data alumni berdasarkan ID
+const deleteAlumni = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: "ID is required" });
+    }
+
+    const deleted = await Alumni.destroy({
+      where: { id },
+    });
+
+    if (!deleted) {
+      return res.status(404).json({
+        message: "Alumni not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Alumni successfully deleted",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+// Mencari alumni berdasarkan nama
+const searchAlumniByName = async (req, res) => {
+  try {
+    const { name } = req.params;
+
+    if (!name) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    const alumni = await Alumni.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${name}%`,
         },
-      });
+      },
+    });
 
-      if (alumni.length === 0) {
-        return res.status(404).json({ message: "Resource not found" });
-      }
-
-      res.status(200).json({
-        message: "Get searched resource",
-        data: alumni,
+    if (alumni.length === 0) {
+      return res.status(404).json({
+        message: "Alumni not found",
+        data: [],
       });
-    } catch (error) {
-      res.status(500).json({ message: "Error searching data", error });
     }
+
+    res.status(200).json({
+      message: "Successfully retrieved alumni by name",
+      data: alumni,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
   }
+};
 
-  // Mendapatkan alumni yang baru lulus (fresh graduate)
-  async getFreshGraduate(req, res) {
-    try {
-      const alumni = await Alumni.findAll({
-        where: {
-          status: "fresh-graduate",
-        },
-      });
-
-      res.status(200).json({
-        message: "Get fresh graduate resource",
-        total: alumni.length,
-        data: alumni,
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching data", error });
-    }
-  }
-
-  // Mendapatkan alumni yang sudah bekerja (employed)
-  async getEmployed(req, res) {
-    try {
-      const alumni = await Alumni.findAll({
-        where: {
-          status: "employed",
-        },
-      });
-
-      res.status(200).json({
-        message: "Get employed resource",
-        total: alumni.length,
-        data: alumni,
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching data", error });
-    }
-  }
-
-  // Mendapatkan alumni yang belum bekerja (unemployed)
-  async getUnemployed(req, res) {
-    try {
-      const alumni = await Alumni.findAll({
-        where: {
-          status: "unemployed",
-        },
-      });
-
-      res.status(200).json({
-        message: "Get unemployed resource",
-        total: alumni.length,
-        data: alumni,
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching data", error });
-    }
-  }
-}
-
-// Membuat object AlumniController
-const object = new AlumniController();
-
-// Export object AlumniController
-module.exports = object;
+// Ekspor semua fungsi
+module.exports = {
+  getAllAlumni,
+  getAlumniById,
+  createAlumni,
+  updateAlumni,
+  deleteAlumni,
+  searchAlumniByName,
+};

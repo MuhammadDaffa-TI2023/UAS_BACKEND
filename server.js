@@ -1,17 +1,13 @@
 const express = require("express");
+const bodyParser = require("body-parser");
+const apiRoutes = require("./routes/api");
+
 const app = express();
 
-// Import routing API
-const apiRouter = require("./routes/api"); // Periksa apakah path-nya benar
+app.use(bodyParser.json());
+app.use("/api", apiRoutes); // Gunakan prefix "/api" untuk semua routes
 
-// Gunakan middleware untuk parsing body request
-app.use(express.json());
-
-// Daftarkan routing
-app.use("/api", apiRouter); // Semua routing di api.js akan dimulai dengan '/api'
-
-// Menjalankan server
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

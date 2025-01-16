@@ -1,75 +1,52 @@
-// Import Sequelize
-const { Sequelize, DataTypes, Model } = require('sequelize');
+const { Sequelize, DataTypes } = require("sequelize");
+const sequelize = require("../config/database"); // Koneksi database
 
-// Import database connection
-const sequelize = require('../config/database'); // Pastikan file `database.js` sudah ada dan diatur
-
-// Membuat class Alumni
-class Alumni extends Model {}
-
-// Mendefinisikan model Alumni
-Alumni.init(
-  {
-    // Kolom 'id' sebagai primary key
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    // Kolom 'name'
-    name: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
-    // Kolom 'phone'
-    phone: {
-      type: DataTypes.STRING(20),
-      allowNull: false,
-    },
-    // Kolom 'address'
-    address: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    // Kolom 'graduation_year'
-    graduation_year: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    // Kolom 'status'
-    status: {
-      type: DataTypes.ENUM('fresh-graduate', 'employed', 'unemployed'),
-      allowNull: false,
-    },
-    // Kolom 'company_name'
-    company_name: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    // Kolom 'position'
-    position: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    // Kolom 'created_at'
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: Sequelize.NOW, // Atau Sequelize.literal('CURRENT_TIMESTAMP') untuk MySQL
-    },
-    // Kolom 'updated_at'
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: Sequelize.NOW, // Atau Sequelize.literal('CURRENT_TIMESTAMP') untuk MySQL
-      onUpdate: Sequelize.NOW,
-    },
+// Definisi model Alumni
+const Alumni = sequelize.define("Alumni", {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
   },
-  {
-    sequelize, // Koneksi ke database
-    modelName: 'alumni', // Nama model
-    tableName: 'alumni', // Nama tabel di database
-    timestamps: false, // Tidak menggunakan otomatis 'createdAt' dan 'updatedAt'
-  }
-);
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  address: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  graduation_year: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  status: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  company_name: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  position: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: Sequelize.NOW,
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    defaultValue: Sequelize.NOW,
+  },
+}, {
+  tableName: "alumni", // Sesuaikan dengan nama tabel di database Anda
+  timestamps: false,  // Nonaktifkan timestamps jika tidak digunakan
+});
 
-// Export class Alumni
 module.exports = Alumni;
